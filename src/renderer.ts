@@ -164,8 +164,8 @@ export function renderFrame(
     rRect(ctx, x, y, node.w, node.h, r)
     ctx.stroke()
 
-    const labelSize = Math.max(11, node.h * 0.24)
-    const subSize = Math.max(9, node.h * 0.18)
+    const labelSize = Math.max(13, node.h * 0.26)
+    const subSize = Math.max(11, node.h * 0.20)
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
 

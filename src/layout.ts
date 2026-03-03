@@ -1,9 +1,9 @@
 import type { Graph } from './types'
 
-const NODE_W = 160
-const NODE_H = 58
-const COL_GAP = 90
-const ROW_GAP = 100
+const NODE_W = 200
+const NODE_H = 72
+const COL_GAP = 100
+const ROW_GAP = 110
 const COLS = 3
 const MARGIN_X = 100
 const MARGIN_Y = 120
