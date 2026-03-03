@@ -1,8 +1,11 @@
+import { inject } from '@vercel/analytics'
 import { parseYaml } from './parser'
 import { applyLayout } from './layout'
 import { renderFrame } from './renderer'
 import { Simulation } from './simulation'
 import type { Graph } from './types'
+
+inject()
 
 const EXAMPLE_YAML = `nodes:
   - id: gateway
