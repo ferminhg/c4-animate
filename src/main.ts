@@ -106,7 +106,7 @@ function buildStats() {
 function updateStatCounts() {
   statsEl.querySelectorAll<HTMLElement>('[data-edge]').forEach(el => {
     const i = Number(el.dataset.edge)
-    el.textContent = String(counts[i] ?? 0)
+    el.textContent = formatMetric(counts[i] ?? 0)
   })
 }
 
