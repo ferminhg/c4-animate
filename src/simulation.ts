@@ -1,6 +1,6 @@
 import type { Graph, Dot } from './types'
 
-const TRAVEL_TIME = 1500
+const TRAVEL_TIME = 3000
 
 export class Simulation {
   private dots: Dot[] = []
