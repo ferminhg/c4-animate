@@ -40,7 +40,8 @@ export class Simulation {
   private loop() {
     this.rafId = requestAnimationFrame((now) => {
       if (!this.running) return
-      const dt = this.lastTime === null ? 0 : now - this.lastTime
+      const rawDt = this.lastTime === null ? 0 : now - this.lastTime
+      const dt = Math.min(rawDt, 100)
       this.lastTime = now
 
       const speed = 1 / TRAVEL_TIME

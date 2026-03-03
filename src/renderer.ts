@@ -35,12 +35,19 @@ export function renderFrame(
 
   const nodeMap = new Map(graph.nodes.map(n => [n.id, n]))
 
+  const offsets = graph.edges.map((edge, i) => {
+    const hasPair = graph.edges.some((e, j) => j !== i && e.from === edge.to && e.to === edge.from)
+    if (!hasPair) return 0
+    const isFirst = graph.edges.findIndex(e => e.from === edge.to && e.to === edge.from) > i
+    return isFirst ? 40 : -40
+  })
+
   graph.edges.forEach((edge, i) => {
     const src = nodeMap.get(edge.from)
     const dst = nodeMap.get(edge.to)
     if (!src || !dst) return
 
-    const offset = getBezierOffset(graph.edges, i)
+    const offset = offsets[i]
     const cp = controlPoint(src.cx, src.cy, dst.cx, dst.cy, offset)
 
     ctx.beginPath()
@@ -60,7 +67,7 @@ export function renderFrame(
     const dst = nodeMap.get(edge.to)
     if (!src || !dst) return
 
-    const offset = getBezierOffset(graph.edges, dot.edgeIndex)
+    const offset = offsets[dot.edgeIndex]
     const cp = controlPoint(src.cx, src.cy, dst.cx, dst.cy, offset)
     const pos = quadraticPoint(src.cx, src.cy, cp.x, cp.y, dst.cx, dst.cy, dot.t)
 
@@ -97,13 +104,6 @@ export function renderFrame(
     ctx.font = `${Math.max(9, node.h * 0.17)}px 'Courier New', monospace`
     ctx.fillText(node.type, node.cx, node.cy + 10)
   })
-}
-
-function getBezierOffset(edges: Graph['edges'], i: number): number {
-  const edge = edges[i]
-  const hasPair = edges.some((e, j) => j !== i && e.from === edge.to && e.to === edge.from)
-  if (!hasPair) return 0
-  return 40
 }
 
 function controlPoint(x1: number, y1: number, x2: number, y2: number, offset: number) {

@@ -89,14 +89,25 @@ function buildGraph(): Graph | null {
   }
 }
 
-function renderStats() {
+function buildStats() {
   if (!graph) return
   statsEl.innerHTML = graph.edges.map((edge, i) => `
     <div class="stat" style="border-color:${edge.color}">
-      <div class="stat-label">${edge.from} → ${edge.to}</div>
-      <div class="stat-value" style="color:${edge.color}">${counts[i] ?? 0}</div>
+      <div class="stat-label">${escapeHtml(edge.from)} → ${escapeHtml(edge.to)}</div>
+      <div class="stat-value" style="color:${edge.color}" data-edge="${i}">0</div>
     </div>
   `).join('')
+}
+
+function updateStatCounts() {
+  statsEl.querySelectorAll<HTMLElement>('[data-edge]').forEach(el => {
+    const i = Number(el.dataset.edge)
+    el.textContent = String(counts[i] ?? 0)
+  })
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
 function renderLegend() {
@@ -119,14 +130,14 @@ btnPlay.addEventListener('click', () => {
   if (!graph) return
   resizeCanvas()
   counts = graph.edges.map(() => 0)
-  renderStats()
+  buildStats()
   renderLegend()
 
   sim = new Simulation(
     graph,
     (dots) => {
       renderFrame(ctx, canvas, graph!, dots)
-      renderStats()
+      updateStatCounts()
     },
     (edgeIndex) => { counts[edgeIndex] = (counts[edgeIndex] ?? 0) + 1 }
   )
