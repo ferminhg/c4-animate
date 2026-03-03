@@ -12,7 +12,8 @@ export class Simulation {
   constructor(
     private graph: Graph,
     private onFrame: (dots: Dot[]) => void,
-    private onCount: (edgeIndex: number) => void
+    private onCount: (edgeIndex: number) => void,
+    private batchSize: number = 1
   ) {}
 
   start() {
@@ -56,7 +57,7 @@ export class Simulation {
       })
 
       this.graph.edges.forEach((edge, i) => {
-        this.accumulator[i] += (edge.rate / 1000) * dt
+        this.accumulator[i] += (edge.rate / 1000) * dt * this.batchSize
         while (this.accumulator[i] >= 1) {
           this.dots.push({ edgeIndex: i, t: 0, trail: [] })
           this.accumulator[i] -= 1
