@@ -144,7 +144,7 @@ btnPlay.addEventListener('click', () => {
       renderFrame(ctx, canvas, graph!, dots)
       updateStatCounts()
     },
-    (edgeIndex) => { counts[edgeIndex] = (counts[edgeIndex] ?? 0) + 1 },
+    (edgeIndex) => { counts[edgeIndex] = (counts[edgeIndex] ?? 0) + batchSize },
     batchSize
   )
   sim.start()
