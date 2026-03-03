@@ -24,23 +24,23 @@ const EXAMPLE_YAML = `nodes:
 edges:
   - from: gateway
     to: redis
-    rate: 500
+    rate: 60
     color: "#f59e0b"
   - from: gateway
     to: postgres
-    rate: 200
+    rate: 30
     color: "#4a9eff"
   - from: gateway
     to: kafka
-    rate: 300
+    rate: 45
     color: "#4aca82"
   - from: kafka
     to: worker
-    rate: 300
+    rate: 45
     color: "#a855f7"
   - from: worker
     to: postgres
-    rate: 200
+    rate: 30
     color: "#4aca82"
 `
 

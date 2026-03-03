@@ -1,12 +1,12 @@
 import type { Graph } from './types'
 
-const NODE_W = 140
-const NODE_H = 50
-const COL_GAP = 60
-const ROW_GAP = 80
-const COLS = 4
-const MARGIN_X = 80
-const MARGIN_Y = 80
+const NODE_W = 160
+const NODE_H = 58
+const COL_GAP = 90
+const ROW_GAP = 100
+const COLS = 3
+const MARGIN_X = 100
+const MARGIN_Y = 120
 
 export function applyLayout(graph: Graph, canvasW: number, canvasH: number): void {
   const scale = Math.min(canvasW / 1400, canvasH / 820)
