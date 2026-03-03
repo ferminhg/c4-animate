@@ -1,6 +1,17 @@
 import type { Graph, Dot } from './types'
 
 const TRAVEL_TIME = 3000
+const TRAVEL_TIME_VARIANCE = 0.25
+const CREATION_TIME_VARIANCE = 0.15
+
+function randomTravelTime(): number {
+  const variance = 1 + (Math.random() - 0.5) * 2 * TRAVEL_TIME_VARIANCE
+  return TRAVEL_TIME * variance
+}
+
+function randomCreationOffset(): number {
+  return (Math.random() - 0.5) * 2 * CREATION_TIME_VARIANCE
+}
 
 export class Simulation {
   private dots: Dot[] = []
@@ -45,9 +56,8 @@ export class Simulation {
       const dt = Math.min(rawDt, 100)
       this.lastTime = now
 
-      const speed = 1 / TRAVEL_TIME
-
       this.dots = this.dots.filter(dot => {
+        const speed = 1 / dot.travelTime
         dot.t += speed * dt
         if (dot.t >= 1) {
           this.onCount(dot.edgeIndex)
@@ -59,7 +69,14 @@ export class Simulation {
       this.graph.edges.forEach((edge, i) => {
         this.accumulator[i] += (edge.rate / 1000) * dt * this.batchSize
         while (this.accumulator[i] >= 1) {
-          this.dots.push({ edgeIndex: i, t: 0, trail: [] })
+          const travelTime = randomTravelTime()
+          const creationOffset = randomCreationOffset()
+          this.dots.push({
+            edgeIndex: i,
+            t: Math.max(0, creationOffset),
+            travelTime,
+            trail: []
+          })
           this.accumulator[i] -= 1
         }
       })

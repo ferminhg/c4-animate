@@ -27,6 +27,7 @@ export interface Graph {
 export interface Dot {
   edgeIndex: number
   t: number
+  travelTime: number
   trail: Array<{ x: number; y: number; a: number }>
 }
 
