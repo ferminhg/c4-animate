@@ -64,7 +64,7 @@ yamlInput.value = EXAMPLE_YAML
 let graph: Graph | null = null
 let sim: Simulation | null = null
 let counts: number[] = []
-let batchSize = 1
+let batchSize = 100
 
 function resizeCanvas() {
   canvas.width = canvas.offsetWidth
