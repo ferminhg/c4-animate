@@ -117,6 +117,8 @@ export function renderFrame(
     if (dot.trail.length > 16) dot.trail.shift()
     dot.trail.forEach(tp => { tp.a *= 0.82 })
 
+    ctx.save()
+
     dot.trail.forEach(tp => {
       ctx.beginPath()
       ctx.arc(tp.x, tp.y, dotRadius * tp.a * 0.5, 0, Math.PI * 2)
@@ -124,18 +126,17 @@ export function renderFrame(
       ctx.globalAlpha = tp.a * 0.3
       ctx.fill()
     })
-    ctx.globalAlpha = 1
 
     ctx.beginPath()
     ctx.arc(pos.x, pos.y, dotRadius * 2.2, 0, Math.PI * 2)
     ctx.fillStyle = edge.color
     ctx.globalAlpha = 0.12
     ctx.fill()
-    ctx.globalAlpha = 1
 
     ctx.beginPath()
     ctx.arc(pos.x, pos.y, dotRadius, 0, Math.PI * 2)
     ctx.fillStyle = edge.color
+    ctx.globalAlpha = 1
     ctx.fill()
 
     ctx.beginPath()
@@ -143,7 +144,8 @@ export function renderFrame(
     ctx.fillStyle = '#fff'
     ctx.globalAlpha = 0.6
     ctx.fill()
-    ctx.globalAlpha = 1
+
+    ctx.restore()
   })
 
   graph.nodes.forEach(node => {

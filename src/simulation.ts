@@ -58,7 +58,7 @@ export class Simulation {
       this.graph.edges.forEach((edge, i) => {
         this.accumulator[i] += (edge.rate / 1000) * dt
         while (this.accumulator[i] >= 1) {
-          this.dots.push({ edgeIndex: i, t: 0, speed, trail: [] })
+          this.dots.push({ edgeIndex: i, t: 0, trail: [] })
           this.accumulator[i] -= 1
         }
       })

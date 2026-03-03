@@ -27,6 +27,5 @@ export interface Graph {
 export interface Dot {
   edgeIndex: number
   t: number
-  speed: number
   trail: Array<{ x: number; y: number; a: number }>
 }
