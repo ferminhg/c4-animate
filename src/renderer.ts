@@ -1,5 +1,17 @@
 import type { Graph, Dot } from './types'
 
+function formatMetric(value: number): string {
+  if (value >= 1000000) {
+    const m = (value / 1000000).toFixed(1)
+    return m.endsWith('.0') ? `${Math.round(value / 1000000)}M` : `${m}M`
+  }
+  if (value >= 1000) {
+    const k = (value / 1000).toFixed(1)
+    return k.endsWith('.0') ? `${Math.round(value / 1000)}k` : `${k}k`
+  }
+  return value.toString()
+}
+
 const NODE_BORDER: Record<string, string> = {
   service:  '#4a9eff',
   store:    '#f59e0b',
@@ -28,6 +40,12 @@ function rRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h
   ctx.lineTo(x, y + r)
   ctx.quadraticCurveTo(x, y, x + r, y)
   ctx.closePath()
+}
+
+function edgeLineColor(srcType: string, dstType: string): string {
+  if (srcType === 'eventBus' || dstType === 'eventBus') return '#2a2a1a'
+  if (srcType === 'store' || dstType === 'store') return '#1a1a2a'
+  return '#162840'
 }
 
 export function renderFrame(
@@ -70,12 +88,15 @@ export function renderFrame(
     const offset = offsets[i]
     const cp = controlPoint(src.cx, src.cy, dst.cx, dst.cy, offset)
 
+    ctx.save()
     ctx.beginPath()
     ctx.moveTo(src.cx, src.cy)
     ctx.quadraticCurveTo(cp.x, cp.y, dst.cx, dst.cy)
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)'
+    ctx.strokeStyle = edgeLineColor(src.type, dst.type)
     ctx.lineWidth = 1.5
+    ctx.setLineDash([4, 4])
     ctx.stroke()
+    ctx.restore()
 
     drawArrow(ctx, cp.x, cp.y, dst.cx, dst.cy)
   })
@@ -146,6 +167,9 @@ export function renderFrame(
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
 
+    const totalRate = graph.edges.filter(e => e.to === node.id).reduce((sum, e) => sum + e.rate, 0)
+    const metricText = formatMetric(totalRate)
+
     ctx.fillStyle = '#c8ddf0'
     ctx.font = `bold ${labelSize}px 'Courier New', monospace`
     ctx.fillText(node.label, node.cx, node.cy - node.h * 0.14, node.w - 10)
@@ -153,6 +177,10 @@ export function renderFrame(
     ctx.fillStyle = border
     ctx.font = `${subSize}px 'Courier New', monospace`
     ctx.fillText(node.type, node.cx, node.cy + node.h * 0.18, node.w - 10)
+
+    ctx.fillStyle = '#88ccff'
+    ctx.font = `bold ${Math.max(10, node.h * 0.2)}px 'Courier New', monospace`
+    ctx.fillText(metricText, node.cx, node.cy + node.h * 0.4, node.w - 10)
   })
 }
 
