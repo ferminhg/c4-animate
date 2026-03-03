@@ -1,6 +1,6 @@
 import type { Graph, Dot } from './types'
 
-function formatMetric(value: number): string {
+export function formatMetric(value: number): string {
   if (value >= 1000000) {
     const m = (value / 1000000).toFixed(1)
     return m.endsWith('.0') ? `${Math.round(value / 1000000)}M` : `${m}M`

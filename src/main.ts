@@ -1,7 +1,7 @@
 import { inject } from '@vercel/analytics'
 import { parseYaml } from './parser'
 import { applyLayout } from './layout'
-import { renderFrame } from './renderer'
+import { renderFrame, formatMetric } from './renderer'
 import { Simulation } from './simulation'
 import type { Graph } from './types'
 
@@ -97,7 +97,7 @@ function buildStats() {
   if (!graph) return
   statsEl.innerHTML = graph.edges.map((edge, i) => `
     <div class="stat" style="border-color:${edge.color}">
-      <div class="stat-label">${escapeHtml(edge.from)} → ${escapeHtml(edge.to)}</div>
+      <div class="stat-label">${escapeHtml(edge.from)} → ${escapeHtml(edge.to)} [${formatMetric(edge.rate)}/sec]</div>
       <div class="stat-value" style="color:${edge.color}" data-edge="${i}">0</div>
     </div>
   `).join('')
@@ -106,7 +106,7 @@ function buildStats() {
 function updateStatCounts() {
   statsEl.querySelectorAll<HTMLElement>('[data-edge]').forEach(el => {
     const i = Number(el.dataset.edge)
-    el.textContent = String(counts[i] ?? 0)
+    el.textContent = formatMetric(counts[i] ?? 0)
   })
 }
 
