@@ -1,19 +1,20 @@
 # C4Flow
 
-**Turn static Mermaid C4 diagrams into animated traffic simulations — entirely in the browser.**
+**Define your system architecture in YAML and watch traffic animate across it in real time — entirely in the browser.**
 
-C4Flow is a client-side web tool that parses Mermaid C4 architecture diagrams and renders them as live, animated system traffic visualizations. Write your architecture in the editor, define traffic patterns, and watch requests flow between services in real time.
+C4Flow is a client-side web tool that parses a simple YAML definition of nodes, edges, and traffic rates and renders a live animated simulation on a canvas. Write your architecture in the editor, hit play, and watch requests flow between services.
 
-No backend. No dependencies. Just paste your diagram and hit play.
+No backend. No framework. Just YAML and a canvas.
 
 ## What it does
 
-- **Editor panel** — Write or paste Mermaid C4 diagrams directly in the browser with syntax highlighting
-- **Live renderer** — Parses the diagram and renders an interactive, animated canvas showing services, connections, and request traffic flowing between them
-- **Traffic simulation** — Animated dots represent requests moving through the system, with configurable rates, colors, and patterns per connection
-- **Counters & metrics** — Real-time stats panel showing requests processed, cache hits, batches, and throughput per service
-- **Step-through narration** — Walk through the architecture flow step by step, ideal for presentations and onboarding
-- **Zero backend** — Everything runs client-side. Export your visualization as a standalone HTML file you can share or deploy anywhere
+- **YAML editor** — Define nodes, edges, and traffic rates directly in the browser
+- **Live canvas renderer** — Renders nodes and edges with bezier curves and arrowheads
+- **Traffic simulation** — Animated dots represent requests moving through the system at configurable rates per edge
+- **Counters panel** — Real-time stats showing requests processed per edge
+- **Legend** — Auto-generated legend based on node types in the diagram
+- **Collapsible editor** — Toggle the editor panel to focus on the canvas
+- **Zero backend** — Everything runs client-side as a static site
 
 ## Quick start
 
@@ -24,50 +25,71 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`, paste a Mermaid C4 diagram in the editor, and the visualization renders live on the right panel.
+Open `http://localhost:5173`, edit the YAML in the left panel, and click **▶ Play**.
 
 ## Example input
 
-```mermaid
-C4Context
-  title System Architecture
-
-  System(gateway, "API Gateway", "Routes incoming traffic")
-  SystemDb(redis, "Redis", "Cache layer")
-  SystemDb(postgres, "PostgreSQL", "Primary store")
-  System(worker, "Worker Service", "Async processing")
-  SystemQueue(kafka, "Kafka", "Event bus")
-
-  Rel(gateway, redis, "Cache lookup")
-  Rel(gateway, postgres, "Fallback read")
-  Rel(gateway, kafka, "Publishes events")
-  Rel(kafka, worker, "Consumes events")
-  Rel(worker, postgres, "Writes results")
-```
-
-## Traffic configuration
-
-Define traffic patterns inline using YAML front matter or a separate config block:
-
 ```yaml
-traffic:
-  - edge: gateway -> redis
-    rate: 1000/s
-    type: cache
-    color: orange
-  - edge: gateway -> postgres
-    rate: 200/s
-    type: fallback
-    color: cyan
-  - edge: gateway -> kafka
-    rate: 1000/s
-    type: event
-    color: green
-  - edge: kafka -> worker
-    rate: 1000/s
-    type: batch
-    color: purple
+nodes:
+  - id: gateway
+    label: API Gateway
+    type: service
+  - id: redis
+    label: Redis
+    type: store
+  - id: postgres
+    label: PostgreSQL
+    type: store
+  - id: kafka
+    label: Kafka
+    type: eventBus
+  - id: worker
+    label: Worker
+    type: service
+
+edges:
+  - from: gateway
+    to: redis
+    rate: 500
+    color: "#f59e0b"
+  - from: gateway
+    to: postgres
+    rate: 200
+    color: "#4a9eff"
+  - from: gateway
+    to: kafka
+    rate: 300
+    color: "#4aca82"
+  - from: kafka
+    to: worker
+    rate: 300
+    color: "#a855f7"
+  - from: worker
+    to: postgres
+    rate: 200
+    color: "#4aca82"
 ```
+
+## YAML schema
+
+### Nodes
+
+| Field   | Required | Description |
+|---------|----------|-------------|
+| `id`    | yes      | Unique identifier used in edge references |
+| `label` | yes      | Display name shown on the canvas |
+| `type`  | no       | One of `service`, `store`, `queue`, `eventBus`, `external` (default: `service`) |
+| `x`     | no       | Manual x position in layout units |
+| `y`     | no       | Manual y position in layout units |
+
+### Edges
+
+| Field   | Required | Description |
+|---------|----------|-------------|
+| `from`  | yes      | Source node id |
+| `to`    | yes      | Target node id |
+| `rate`  | no       | Dots spawned per second (default: `100`) |
+| `color` | no       | Dot and stat color as a CSS color string (default: `#4a9eff`) |
 
 ## Architecture
 
@@ -76,44 +98,58 @@ traffic:
 │                  Browser                     │
 │                                              │
 │  ┌──────────────┐   ┌────────────────────┐  │
-│  │    Editor     │   │     Renderer       │  │
-│  │              │   │                    │  │
-│  │  Mermaid C4  │──▶│  Canvas/SVG        │  │
-│  │  + Traffic   │   │  Animated dots     │  │
-│  │    config    │   │  Metrics panel     │  │
-│  │              │   │  Narration bar     │  │
-│  └──────────────┘   └────────────────────┘  │
+│  │  YAML Editor │   │   Canvas Renderer  │  │
+│  │  (textarea)  │──▶│  Nodes + Edges     │  │
+│  │              │   │  Bezier curves     │  │
+│  └──────────────┘   │  Animated dots     │  │
+│                     └────────────────────┘  │
 │         │                    ▲               │
 │         ▼                    │               │
-│  ┌──────────────────────────────┐           │
-│  │         Parser               │           │
-│  │  Mermaid C4 → JSON Graph    │           │
-│  │  Traffic YAML → Config      │           │
-│  └──────────────────────────────┘           │
+│  ┌──────────────┐   ┌────────────────────┐  │
+│  │ YAML Parser  │   │ Simulation Engine  │  │
+│  │ (js-yaml)    │──▶│ RAF loop           │  │
+│  │              │   │ Rate-based spawn   │  │
+│  └──────────────┘   └────────────────────┘  │
+│         │                                   │
+│         ▼                                   │
+│  ┌──────────────┐                           │
+│  │ Layout Engine│                           │
+│  │ Grid + manual│                           │
+│  │ x/y override │                           │
+│  └──────────────┘                           │
 └─────────────────────────────────────────────┘
 ```
 
 ## Tech stack
 
 - **TypeScript** — End to end type safety
-- **Canvas API** — High-performance rendering for animated traffic dots
 - **Vite** — Dev server and build tooling
-- **CodeMirror** — Editor with syntax highlighting
-- **Zero runtime dependencies** — Core parser and renderer are dependency-free
+- **js-yaml** — YAML parsing
+- **Canvas API** — High-performance rendering for animated traffic dots
+- **Vanilla HTML/CSS** — No UI frameworks
+
+## Deployment
+
+The app builds to a static `dist/` folder and is configured for Vercel:
+
+```bash
+npm run build
+```
 
 ## Roadmap
 
-- [x] Project setup and README
-- [ ] Mermaid C4 parser → JSON graph
-- [ ] Static canvas renderer (nodes + edges)
-- [ ] Traffic animation engine (animated dots along paths)
-- [ ] Editor panel with live preview
-- [ ] Metrics counters panel
-- [ ] Step-through narration mode
-- [ ] Traffic YAML config support
+- [x] Project scaffold with split-panel layout
+- [x] Core TypeScript types
+- [x] YAML parser with validation
+- [x] Grid layout engine with manual x/y override
+- [x] Canvas renderer (nodes, edges, bezier curves, dots)
+- [x] Simulation engine (RAF loop, rate-based dot spawning)
+- [x] Wire everything together in main
+- [x] Vercel deployment config
+- [ ] Force-directed layout
 - [ ] Export as standalone HTML
-- [ ] Theme customization (dark/light, color palettes)
-- [ ] Layout algorithms (force-directed, hierarchical, manual)
+- [ ] Theme customization
+- [ ] Step-through narration mode
 
 ## License
 
