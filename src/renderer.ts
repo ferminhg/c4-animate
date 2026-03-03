@@ -80,6 +80,8 @@ export function renderFrame(
     drawArrow(ctx, cp.x, cp.y, dst.cx, dst.cy)
   })
 
+  const dotRadius = Math.max(3, Math.min(W, H) * 0.004)
+
   dots.forEach(dot => {
     const edge = graph.edges[dot.edgeIndex]
     if (!edge) return
@@ -87,17 +89,40 @@ export function renderFrame(
     const dst = nodeMap.get(edge.to)
     if (!src || !dst) return
 
-    const offset = offsets[dot.edgeIndex]
-    const cp = controlPoint(src.cx, src.cy, dst.cx, dst.cy, offset)
+    const cp = controlPoint(src.cx, src.cy, dst.cx, dst.cy, offsets[dot.edgeIndex])
     const pos = quadraticPoint(src.cx, src.cy, cp.x, cp.y, dst.cx, dst.cy, dot.t)
 
+    dot.trail.push({ x: pos.x, y: pos.y, a: 1 })
+    if (dot.trail.length > 16) dot.trail.shift()
+    dot.trail.forEach(tp => { tp.a *= 0.82 })
+
+    dot.trail.forEach(tp => {
+      ctx.beginPath()
+      ctx.arc(tp.x, tp.y, dotRadius * tp.a * 0.5, 0, Math.PI * 2)
+      ctx.fillStyle = edge.color
+      ctx.globalAlpha = tp.a * 0.3
+      ctx.fill()
+    })
+    ctx.globalAlpha = 1
+
     ctx.beginPath()
-    ctx.arc(pos.x, pos.y, 4, 0, Math.PI * 2)
+    ctx.arc(pos.x, pos.y, dotRadius * 2.2, 0, Math.PI * 2)
     ctx.fillStyle = edge.color
-    ctx.shadowColor = edge.color
-    ctx.shadowBlur = 8
+    ctx.globalAlpha = 0.12
     ctx.fill()
-    ctx.shadowBlur = 0
+    ctx.globalAlpha = 1
+
+    ctx.beginPath()
+    ctx.arc(pos.x, pos.y, dotRadius, 0, Math.PI * 2)
+    ctx.fillStyle = edge.color
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.arc(pos.x, pos.y, dotRadius * 0.4, 0, Math.PI * 2)
+    ctx.fillStyle = '#fff'
+    ctx.globalAlpha = 0.6
+    ctx.fill()
+    ctx.globalAlpha = 1
   })
 
   graph.nodes.forEach(node => {
