@@ -29,16 +29,6 @@
     .legend-item { display: flex; align-items: center; gap: 5px; }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
     #error-banner { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(239,68,68,0.15); border-top: 1px solid #ef4444; color: #ef4444; font-size: 11px; padding: 6px 12px; display: none; }
-    .control-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .control-group label {
-      color: #88ccff;
-      font-size: 13px;
-    }
   </style>
 </head>
 <body>
@@ -52,17 +42,6 @@
       <div id="editor-controls">
         <button class="btn btn-primary" id="btn-play">▶ Play</button>
         <button class="btn btn-danger" id="btn-stop">⏹ Stop</button>
-        <div class="control-group">
-          <label for="batch-size">Requests per dot:</label>
-          <input
-            type="number"
-            id="batch-size"
-            min="1"
-            max="1000"
-            value="1"
-            style="width: 80px; padding: 6px; border: 1px solid #4a9eff; border-radius: 4px; background: #0a0e19; color: #e0e6ed; font-size: 14px;"
-          />
-        </div>
       </div>
     </div>
     <div id="canvas-panel">
