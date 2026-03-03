@@ -29,3 +29,7 @@ export interface Dot {
   t: number
   trail: Array<{ x: number; y: number; a: number }>
 }
+
+export interface SimulationConfig {
+  batchSize: number
+}
