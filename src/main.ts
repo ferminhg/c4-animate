@@ -54,6 +54,7 @@ const toggleEditor = document.querySelector<HTMLButtonElement>('#toggle-editor')
 const editorPanel = document.querySelector<HTMLDivElement>('#editor-panel')!
 const statsEl = document.querySelector<HTMLDivElement>('#stats')!
 const legendEl = document.querySelector<HTMLDivElement>('#legend')!
+const batchSizeInput = document.querySelector<HTMLInputElement>('#batch-size')!
 const errorBanner = document.querySelector<HTMLDivElement>('#error-banner')!
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!
 const ctx = canvas.getContext('2d')!
@@ -63,6 +64,7 @@ yamlInput.value = EXAMPLE_YAML
 let graph: Graph | null = null
 let sim: Simulation | null = null
 let counts: number[] = []
+let batchSize = 1
 
 function resizeCanvas() {
   canvas.width = canvas.offsetWidth
@@ -142,7 +144,8 @@ btnPlay.addEventListener('click', () => {
       renderFrame(ctx, canvas, graph!, dots)
       updateStatCounts()
     },
-    (edgeIndex) => { counts[edgeIndex] = (counts[edgeIndex] ?? 0) + 1 }
+    (edgeIndex) => { counts[edgeIndex] = (counts[edgeIndex] ?? 0) + 1 },
+    batchSize
   )
   sim.start()
 })
@@ -153,6 +156,12 @@ btnStop.addEventListener('click', () => {
   ctx.fillStyle = '#0a0e19'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   statsEl.innerHTML = ''
+})
+
+batchSizeInput.addEventListener('change', (e) => {
+  const value = parseInt((e.target as HTMLInputElement).value) || 1
+  batchSize = Math.max(1, Math.min(1000, value))
+  batchSizeInput.value = String(batchSize)
 })
 
 toggleEditor.addEventListener('click', () => {
