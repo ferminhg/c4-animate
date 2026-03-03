@@ -1,11 +1,19 @@
 import type { Graph, Dot } from './types'
 
-const NODE_COLORS: Record<string, string> = {
+const NODE_BORDER: Record<string, string> = {
   service:  '#4a9eff',
-  store:    '#4aca82',
-  queue:    '#f59e0b',
+  store:    '#f59e0b',
+  queue:    '#4aca82',
   eventBus: '#a855f7',
   external: '#608ba0',
+}
+
+const NODE_BG: Record<string, string> = {
+  service:  '#0d2847',
+  store:    '#1a1a2a',
+  queue:    '#1a2a1a',
+  eventBus: '#2a1a4a',
+  external: '#2a1a3a',
 }
 
 function rRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -30,8 +38,20 @@ export function renderFrame(
 ) {
   const { width: W, height: H } = canvas
 
-  ctx.fillStyle = '#0a0e19'
+  const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W * 0.7)
+  bg.addColorStop(0, '#0d1a2e')
+  bg.addColorStop(1, '#0a0e19')
+  ctx.fillStyle = bg
   ctx.fillRect(0, 0, W, H)
+
+  const scale = Math.min(W / 1400, H / 820)
+  const gridStep = 35 * scale
+  ctx.fillStyle = '#151f30'
+  for (let gx = 0; gx < W; gx += gridStep) {
+    for (let gy = 0; gy < H; gy += gridStep) {
+      ctx.fillRect(gx, gy, 1, 1)
+    }
+  }
 
   const nodeMap = new Map(graph.nodes.map(n => [n.id, n]))
 
@@ -81,28 +101,33 @@ export function renderFrame(
   })
 
   graph.nodes.forEach(node => {
-    const color = NODE_COLORS[node.type] ?? '#4a9eff'
+    const border = NODE_BORDER[node.type] ?? '#4a9eff'
+    const nodeBg = NODE_BG[node.type] ?? '#0d1f3c'
     const x = node.cx - node.w / 2
     const y = node.cy - node.h / 2
+    const r = Math.max(4, node.w * 0.05)
 
-    ctx.fillStyle = 'rgba(13,31,60,0.95)'
-    rRect(ctx, x, y, node.w, node.h, 8)
+    ctx.fillStyle = nodeBg
+    rRect(ctx, x, y, node.w, node.h, r)
     ctx.fill()
 
-    ctx.strokeStyle = color
+    ctx.strokeStyle = border
     ctx.lineWidth = 1.5
-    rRect(ctx, x, y, node.w, node.h, 8)
+    rRect(ctx, x, y, node.w, node.h, r)
     ctx.stroke()
 
-    ctx.fillStyle = '#fff'
-    ctx.font = `bold ${Math.max(11, node.h * 0.22)}px 'Courier New', monospace`
+    const labelSize = Math.max(11, node.h * 0.24)
+    const subSize = Math.max(9, node.h * 0.18)
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(node.label, node.cx, node.cy - 6)
 
-    ctx.fillStyle = color
-    ctx.font = `${Math.max(9, node.h * 0.17)}px 'Courier New', monospace`
-    ctx.fillText(node.type, node.cx, node.cy + 10)
+    ctx.fillStyle = '#c8ddf0'
+    ctx.font = `bold ${labelSize}px 'Courier New', monospace`
+    ctx.fillText(node.label, node.cx, node.cy - node.h * 0.14, node.w - 10)
+
+    ctx.fillStyle = border
+    ctx.font = `${subSize}px 'Courier New', monospace`
+    ctx.fillText(node.type, node.cx, node.cy + node.h * 0.18, node.w - 10)
   })
 }
 
