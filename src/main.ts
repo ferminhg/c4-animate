@@ -27,23 +27,23 @@ const EXAMPLE_YAML = `nodes:
 edges:
   - from: gateway
     to: redis
-    rate: 60
+    rate: 6
     color: "#f59e0b"
   - from: gateway
     to: postgres
-    rate: 30
+    rate: 3
     color: "#4a9eff"
   - from: gateway
     to: kafka
-    rate: 45
+    rate: 4
     color: "#4aca82"
   - from: kafka
     to: worker
-    rate: 45
+    rate: 4
     color: "#a855f7"
   - from: worker
     to: postgres
-    rate: 30
+    rate: 3
     color: "#4aca82"
 `
 
@@ -63,7 +63,7 @@ yamlInput.value = EXAMPLE_YAML
 let graph: Graph | null = null
 let sim: Simulation | null = null
 let counts: number[] = []
-let batchSize = 100
+let batchSize = 1
 
 function resizeCanvas() {
   canvas.width = canvas.offsetWidth
