@@ -97,7 +97,7 @@ function buildStats() {
   if (!graph) return
   statsEl.innerHTML = graph.edges.map((edge, i) => `
     <div class="stat" style="border-color:${edge.color}">
-      <div class="stat-label">${escapeHtml(edge.from)} → ${escapeHtml(edge.to)}</div>
+      <div class="stat-label">${escapeHtml(edge.from)} → ${escapeHtml(edge.to)} [${formatMetric(edge.rate)}/sec]</div>
       <div class="stat-value" style="color:${edge.color}" data-edge="${i}">0</div>
     </div>
   `).join('')
